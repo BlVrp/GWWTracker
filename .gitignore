@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Generated systemd unit (install.sh creates it from the .in template)
+window-tracker.service
+
+# Local data / logs — never commit your own activity log
+*.log
+focus.log
+.local/
+
+# Editor / OS cruft
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Working notes / handoff docs (questions, plans, context for the AI assistant).
+# Kept out of the published repo but persisted on disk across sessions.
+.notes/

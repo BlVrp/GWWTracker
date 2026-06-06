@@ -1,0 +1,13 @@
+[Unit]
+Description=Window Focus Tracker for GNOME/Wayland
+After=graphical-session.target
+
+[Service]
+Type=simple
+# __PYTHON__ and __SCRIPT__ are filled in by install.sh
+ExecStart=__PYTHON__ __SCRIPT__
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
