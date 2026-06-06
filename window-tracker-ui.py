@@ -18,6 +18,20 @@ from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
 DEFAULT_LOG = Path.home() / ".local/share/window-tracker/focus.log"
+LOGO_PATH = Path(__file__).resolve().parent / "assets" / "logo.png"
+
+_logo_bytes = None
+
+
+def load_logo() -> bytes:
+    """Read the logo once and cache it in memory; empty bytes if missing."""
+    global _logo_bytes
+    if _logo_bytes is None:
+        try:
+            _logo_bytes = LOGO_PATH.read_bytes()
+        except OSError:
+            _logo_bytes = b""
+    return _logo_bytes
 
 OLD_FORMAT_RE = re.compile(
     r"^\[(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})\] FOCUS_END\s*\| "
@@ -206,6 +220,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <title>Window Tracker</title>
+<link rel="icon" type="image/png" href="/logo.png">
 <style>
 :root {
   --bg: #0f1115;
@@ -237,6 +252,7 @@ header {
   flex-shrink: 0;
 }
 header h1 { font-size: 14px; margin: 0; font-weight: 600; letter-spacing: 0.02em; }
+header .logo { height: 22px; width: 22px; border-radius: 5px; display: block; margin-right: -8px; }
 .date-nav, .zoom-nav { display: flex; align-items: center; gap: 6px; }
 .date-nav button, .date-nav input[type="date"], .zoom-nav button {
   background: var(--bg);
@@ -376,6 +392,7 @@ main {
 </head>
 <body>
 <header>
+  <img class="logo" src="/logo.png" alt="">
   <h1>Window Tracker</h1>
   <div class="date-nav">
     <button id="prev" title="Previous day">‹</button>
@@ -674,6 +691,19 @@ class Handler(BaseHTTPRequestHandler):
 
         if url.path == "/":
             self._send(INDEX_HTML.encode("utf-8"), "text/html; charset=utf-8")
+            return
+
+        if url.path == "/logo.png":
+            data = load_logo()
+            if not data:
+                self._send(b"not found", "text/plain", 404)
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "image/png")
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "max-age=86400")
+            self.end_headers()
+            self.wfile.write(data)
             return
 
         self.cache.refresh()

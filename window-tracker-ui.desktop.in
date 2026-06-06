@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Window Tracker
+GenericName=Activity Dashboard
+Comment=Open the Window Tracker dashboard in your browser
+# The Exec path below is filled in by install.sh with the absolute path to
+# window-tracker-ui-launch.sh in this repo.
+Exec=__LAUNCHER__
+# __ICON__ is filled in by install.sh with the absolute path to assets/logo.png.
+Icon=__ICON__
+Terminal=false
+Categories=Utility;
+Keywords=time;tracking;activity;focus;productivity;
+StartupNotify=true

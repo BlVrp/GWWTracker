@@ -17,6 +17,10 @@ PYTHON="$(command -v python3 || true)"
 SERVICE_SRC="${REPO_DIR}/window-tracker.service.in"
 SERVICE_DIR="${HOME}/.config/systemd/user"
 SERVICE_DST="${SERVICE_DIR}/window-tracker.service"
+DESKTOP_SRC="${REPO_DIR}/window-tracker-ui.desktop.in"
+LAUNCHER="${REPO_DIR}/window-tracker-ui-launch.sh"
+APPLICATIONS_DIR="${HOME}/.local/share/applications"
+DESKTOP_DST="${APPLICATIONS_DIR}/window-tracker-ui.desktop"
 
 say() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33mwarning:\033[0m %s\n' "$*" >&2; }
@@ -67,7 +71,18 @@ if command -v loginctl >/dev/null 2>&1; then
         warn "Could not enable linger; tracker will stop when you log out."
 fi
 
-chmod +x "${REPO_DIR}/window-tracker-ui-launch.sh"
+chmod +x "$LAUNCHER"
+
+# --- 4. install the dashboard desktop entry -------------------------------
+say "Installing the dashboard launcher (application menu entry)..."
+mkdir -p "$APPLICATIONS_DIR"
+sed -e "s|__LAUNCHER__|${LAUNCHER}|g" \
+    -e "s|__ICON__|${REPO_DIR}/assets/logo.png|g" \
+    "$DESKTOP_SRC" > "$DESKTOP_DST"
+say "Wrote ${DESKTOP_DST}"
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database "$APPLICATIONS_DIR" >/dev/null 2>&1 || true
+fi
 
 cat <<EOF
 
@@ -76,7 +91,8 @@ $(say "Done!")
 
   Check status:   systemctl --user status window-tracker.service
   View the log:   journalctl --user -u window-tracker.service -f
-  Open the UI:    ${REPO_DIR}/window-tracker-ui-launch.sh
+  Open the UI:    ${LAUNCHER}
+                  (or search "Window Tracker" in your app menu)
 
   Data is stored at: ~/.local/share/window-tracker/focus.log
 EOF

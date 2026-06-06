@@ -8,6 +8,9 @@ venv/
 # Generated systemd unit (install.sh creates it from the .in template)
 window-tracker.service
 
+# Generated desktop entry (install.sh creates it from the .in template)
+window-tracker-ui.desktop
+
 # Local data / logs — never commit your own activity log
 *.log
 focus.log
